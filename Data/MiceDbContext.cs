@@ -4,19 +4,16 @@ using Microsoft.Extensions.Options;
 
 namespace Aweton.Labs.CurrencyRates.Cli.Data
 {
-  public class MiceDbSettings{
-    public int RateTypeId{get;set;}
-  }
   public partial class MiceDbContext : DbContext
   {
     public MiceDbContext()
     {      
     }
 
-    public MiceDbContext(DbContextOptions<MiceDbContext> options, IOptions<MiceDbSettings> settings)
+    public MiceDbContext(DbContextOptions<MiceDbContext> options)
         : base(options)
     {
-      m_RateTypeId = settings.Value.RateTypeId;
+      
     }
 
     public virtual DbSet<CurrencyRate> CurrencyRates { get; set; } = null!;

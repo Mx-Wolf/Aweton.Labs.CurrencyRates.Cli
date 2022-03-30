@@ -6,11 +6,11 @@ using Microsoft.Extensions.Options;
 namespace Aweton.Labs.CurrencyRates.Cli.Strategy;
 internal class RateRegistrar
 {
-  private readonly IMiceDbContext m_DbContext;
+  private readonly IRegistarPersister m_DbContext;
   private readonly int m_RateTypeId;
   private readonly IEqualityComparer<CurrencyRate> m_Comparer;
 
-  public RateRegistrar(IMiceDbContext dbContext, IOptions<RateRegistrarOptions> options, IEqualityComparer<CurrencyRate> comparer)
+  public RateRegistrar(IRegistarPersister dbContext, IOptions<RateRegistrarOptions> options, IEqualityComparer<CurrencyRate> comparer)
   {
     m_DbContext = dbContext;
     m_RateTypeId = options.Value.RateTypeId;
