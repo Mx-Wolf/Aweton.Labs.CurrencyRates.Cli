@@ -1,17 +1,22 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Aweton.Labs.CurrencyRates.Cli.Models;
+using Microsoft.Extensions.Options;
 
 namespace Aweton.Labs.CurrencyRates.Cli.Data
 {
+  public class MiceDbSettings{
+    public int RateTypeId{get;set;}
+  }
   public partial class MiceDbContext : DbContext
   {
     public MiceDbContext()
-    {
+    {      
     }
 
-    public MiceDbContext(DbContextOptions<MiceDbContext> options)
+    public MiceDbContext(DbContextOptions<MiceDbContext> options, IOptions<MiceDbSettings> settings)
         : base(options)
     {
+      m_RateTypeId = settings.Value.RateTypeId;
     }
 
     public virtual DbSet<CurrencyRate> CurrencyRates { get; set; } = null!;

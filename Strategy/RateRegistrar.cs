@@ -6,11 +6,11 @@ using Microsoft.Extensions.Options;
 namespace Aweton.Labs.CurrencyRates.Cli.Strategy;
 internal class RateRegistrar
 {
-  private readonly MiceDbContext m_DbContext;
+  private readonly IMiceDbContext m_DbContext;
   private readonly int m_RateTypeId;
   private readonly IEqualityComparer<CurrencyRate> m_Comparer;
 
-  public RateRegistrar(MiceDbContext dbContext, IOptions<RateRegistrarOptions> options, IEqualityComparer<CurrencyRate> comparer)
+  public RateRegistrar(IMiceDbContext dbContext, IOptions<RateRegistrarOptions> options, IEqualityComparer<CurrencyRate> comparer)
   {
     m_DbContext = dbContext;
     m_RateTypeId = options.Value.RateTypeId;
@@ -25,25 +25,25 @@ internal class RateRegistrar
     }
 
     fetched.Aggregate(
-      m_DbContext.CurrencyRates, 
+      m_DbContext.AddCurrencyRate, 
       await CreateReducer(
         fetched.Min((e) => e.ADate), 
         fetched.Max((e) => e.ADate)
       )
     );
 
-    await m_DbContext.SaveChangesAsync();
+    await m_DbContext.SaveChangesAsync(CancellationToken.None);
   }
 
-  private async Task<Func<DbSet<CurrencyRate>, CurrencyRate, DbSet<CurrencyRate>>> CreateReducer(DateTime min, DateTime max)
+  private async Task<Func<Action<CurrencyRate>, CurrencyRate, Action<CurrencyRate>>> CreateReducer(DateTime min, DateTime max)
   {
     Func<CurrencyRate, CurrencyRate?> finder = CreateFinder(
-      await GetCurrentState(min,max)
+      await m_DbContext.GetCurrentState(min,max)
     );
-    return (DbSet<CurrencyRate> target, CurrencyRate e) =>
+    return (Action<CurrencyRate> addDelegate, CurrencyRate e) =>
     {
-      InsertOrUpdateRecord(target, e, finder(e));
-      return target;
+      InsertOrUpdateRecord(addDelegate, e, finder(e));
+      return addDelegate;
     };
   }
 
@@ -52,7 +52,7 @@ internal class RateRegistrar
     return (CurrencyRate item) => registeredRates.FirstOrDefault((registered) => m_Comparer.Equals(item, registered));
   }
 
-  private void InsertOrUpdateRecord(DbSet<CurrencyRate> target, CurrencyRate e, CurrencyRate? found)
+  private void InsertOrUpdateRecord(Action<CurrencyRate> addDelegate, CurrencyRate e, CurrencyRate? found)
   {
     if (found != null)
     {
@@ -60,7 +60,7 @@ internal class RateRegistrar
     }
     else
     {
-      target.Add(CreateRecordToInsert(e));
+      addDelegate(CreateRecordToInsert(e));      
     }
   }
 
@@ -81,14 +81,4 @@ internal class RateRegistrar
     };
   }
 
-  private async Task<IReadOnlyList<CurrencyRate>> GetCurrentState(DateTime first, DateTime last)
-  {
-    return await m_DbContext.CurrencyRates.Where(
-      (e) => (
-        e.ADate >= first
-        && e.ADate <= last
-        && e.RateTypesID == m_RateTypeId
-        )
-      ).ToListAsync();
-  }
 }
