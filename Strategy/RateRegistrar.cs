@@ -7,13 +7,11 @@ namespace Aweton.Labs.CurrencyRates.Cli.Strategy;
 internal class RateRegistrar
 {
   private readonly IRegistarPersister m_DbContext;
-  private readonly int m_RateTypeId;
   private readonly IEqualityComparer<CurrencyRate> m_Comparer;
 
-  public RateRegistrar(IRegistarPersister dbContext, IOptions<RateRegistrarOptions> options, IEqualityComparer<CurrencyRate> comparer)
+  public RateRegistrar(IRegistarPersister dbContext, IEqualityComparer<CurrencyRate> comparer)
   {
     m_DbContext = dbContext;
-    m_RateTypeId = options.Value.RateTypeId;
     m_Comparer = comparer;
   }
 
@@ -70,14 +68,14 @@ internal class RateRegistrar
     found.UserName = $"registrar ${DateTime.Now.ToString("O")}";
   }
 
-  private CurrencyRate CreateRecordToInsert(CurrencyRate e)
+  private static CurrencyRate CreateRecordToInsert(CurrencyRate e)
   {
     return new CurrencyRate
     {
       ADate = e.ADate,
       CurrencyTypesID = e.CurrencyTypesID,
       Rate = e.Rate,
-      RateTypesID = m_RateTypeId
+      RateTypesID = e.RateTypesID
     };
   }
 
