@@ -1,14 +1,18 @@
+using Aweton.Labs.CurrencyRates.Cli.Data;
 using Aweton.Labs.CurrencyRates.Cli.Models;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Aweton.Labs.CurrencyRates.Cli.Strategy;
 internal class CurrencyLoader
-{  
+{
   private readonly IServiceProvider m_Services;
+  private readonly DateTime m_DefaultFirstDate;
 
-  public CurrencyLoader(IServiceProvider services)
+  public CurrencyLoader(IServiceProvider services, IOptions<StarterSettings> settings)
   {
     m_Services = services;
+    m_DefaultFirstDate = settings.Value.DefaultFirstDate;
   }
 
   public async Task Run()
@@ -29,26 +33,31 @@ internal class CurrencyLoader
 
   private async Task<(DateTime, IReadOnlyDictionary<int, string>)> Initialize()
   {
-    
-    var dateTask =  GetLastKnownFetchDate();
-    var codesTask =  GetCurrencyCodes();
 
-    await Task.WhenAll(dateTask,codesTask);
-    
+    var dateTask = GetLastKnownFetchDate();
+    var codesTask = GetCurrencyCodes();
+
+    await Task.WhenAll(dateTask, codesTask);
+
     return (await dateTask, await codesTask);
   }
 
-  private Task<IReadOnlyDictionary<int,string>> GetCurrencyCodes()
+  private Task<IReadOnlyDictionary<int, string>> GetCurrencyCodes()
   {
     throw new NotImplementedException();
   }
 
-  private Task<DateTime> GetLastKnownFetchDate()
+  private async Task<DateTime> GetLastKnownFetchDate()
   {
-    throw new NotImplementedException();
+    return await WithScope(
+      async (IStarterPersister worker) =>
+      {
+        return await worker.GetLastKnownDateRun() ?? m_DefaultFirstDate;
+      }
+    );
   }
 
-  private async Task<TResult> WithScope<TWorker, TResult>(Func<TWorker, Task<TResult>> callback) where TWorker :notnull
+  private async Task<TResult> WithScope<TWorker, TResult>(Func<TWorker, Task<TResult>> callback) where TWorker : notnull
   {
     using var scope = m_Services.CreateScope();
     return await callback(scope.ServiceProvider.GetRequiredService<TWorker>());
