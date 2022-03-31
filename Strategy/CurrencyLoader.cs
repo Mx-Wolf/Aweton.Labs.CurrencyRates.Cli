@@ -26,12 +26,12 @@ internal class CurrencyLoader
     throw new NotImplementedException();
   }
 
-  private Task<IReadOnlyList<CurrencyRate>> Fetch((DateTime, IReadOnlyDictionary<int, string>) p)
+  private Task<IReadOnlyList<CurrencyRate>> Fetch((DateTime, IReadOnlyDictionary<string,int>) p)
   {
     throw new NotImplementedException();
   }
 
-  private async Task<(DateTime, IReadOnlyDictionary<int, string>)> Initialize()
+  private async Task<(DateTime, IReadOnlyDictionary<string,int>)> Initialize()
   {
 
     var dateTask = GetLastKnownFetchDate();
@@ -42,7 +42,7 @@ internal class CurrencyLoader
     return (await dateTask, await codesTask);
   }
 
-  private Task<IReadOnlyDictionary<int, string>> GetCurrencyCodes()
+  private Task<IReadOnlyDictionary<string,int>> GetCurrencyCodes()
   {
     throw new NotImplementedException();
   }
@@ -50,7 +50,7 @@ internal class CurrencyLoader
   private async Task<DateTime> GetLastKnownFetchDate()
   {
     return await WithScope(
-      async (IStarterPersister worker) =>
+      async (IStarterDataWorker worker) =>
       {
         return await worker.GetLastKnownDateRun() ?? m_DefaultFirstDate;
       }

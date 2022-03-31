@@ -1,5 +1,5 @@
 
 namespace Aweton.Labs.CurrencyRates.Cli.Data;
-public interface IStarterPersister{
+public interface IStarterDataWorker{
   Task<DateTime?> GetLastKnownDateRun();
 }

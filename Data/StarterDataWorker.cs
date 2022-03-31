@@ -3,10 +3,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aweton.Labs.CurrencyRates.Cli.Data;
 
-internal class StarterPersister : IStarterPersister
+internal class StarterDataWorker : IStarterDataWorker
 {
   private readonly MiceDbContext m_DbContext ;
-  public StarterPersister(MiceDbContext dbContext)
+  public StarterDataWorker(MiceDbContext dbContext)
   {
     m_DbContext=dbContext;
   }

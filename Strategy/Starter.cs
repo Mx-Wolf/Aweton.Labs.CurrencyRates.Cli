@@ -4,9 +4,9 @@ using Microsoft.Extensions.Options;
 namespace Aweton.Labs.CurrencyRates.Cli.Strategy;
 internal class Starter
 {
-  private readonly IStarterPersister m_Persister;
+  private readonly IStarterDataWorker m_Persister;
   private readonly DateTime m_DefaultFirstDate;
-  public Starter(IStarterPersister persister, IOptions<StarterSettings> settings)
+  public Starter(IStarterDataWorker persister, IOptions<StarterSettings> settings)
   {
     m_Persister = persister;
     m_DefaultFirstDate = settings.Value.DefaultFirstDate;
