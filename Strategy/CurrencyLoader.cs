@@ -26,27 +26,14 @@ internal class CurrencyLoader
     throw new NotImplementedException();
   }
 
-  private Task<IReadOnlyList<CurrencyRate>> Fetch((DateTime, IReadOnlyDictionary<string, int>) p)
+  private Task<IReadOnlyList<CurrencyRate>> Fetch(DateTime p)
   {
     throw new NotImplementedException();
   }
 
-  private async Task<(DateTime, IReadOnlyDictionary<string, int>)> Initialize()
-  {
+  private async Task<DateTime> Initialize() => await GetLastKnownFetchDate();
 
-    var dateTask = GetLastKnownFetchDate();
-    var codesTask = GetCurrencyCodes();
-
-    await Task.WhenAll(dateTask, codesTask);
-
-    return (await dateTask, await codesTask);
-  }
-
-  private async Task<IReadOnlyDictionary<string, int>> GetCurrencyCodes()
-  {
-    return await WithScope(async (ICurrencyCodesWorker worker) => await worker.Load());
-  }
-
+  
   private async Task<DateTime> GetLastKnownFetchDate()
   {
     return await WithScope(

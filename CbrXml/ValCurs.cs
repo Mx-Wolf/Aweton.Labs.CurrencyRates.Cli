@@ -21,48 +21,22 @@ using System.Xml.Serialization;
 [System.SerializableAttribute()]
 [System.Diagnostics.DebuggerStepThroughAttribute()]
 [System.ComponentModel.DesignerCategoryAttribute("code")]
-[System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true)]
-[System.Xml.Serialization.XmlRootAttribute(Namespace="", IsNullable=false)]
-public partial class ValCurs {
-    
-    private ValCursValute[] valuteField = null!;
-    
-    private string dateField = null!;
-    
-    private string nameField = null!;
-    
-    /// <remarks/>
-    [System.Xml.Serialization.XmlElementAttribute("Valute")]
-    public ValCursValute[] Valute {
-        get {
-            return this.valuteField;
-        }
-        set {
-            this.valuteField = value;
-        }
-    }
-    
-    /// <remarks/>
-    [System.Xml.Serialization.XmlAttributeAttribute()]
-    public string Date {
-        get {
-            return this.dateField;
-        }
-        set {
-            this.dateField = value;
-        }
-    }
-    
-    /// <remarks/>
-    [System.Xml.Serialization.XmlAttributeAttribute()]
-    public string name {
-        get {
-            return this.nameField;
-        }
-        set {
-            this.nameField = value;
-        }
-    }
+[System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
+[System.Xml.Serialization.XmlRootAttribute(Namespace = "", IsNullable = false)]
+public partial class ValCurs
+{
+
+  /// <remarks/>
+  [System.Xml.Serialization.XmlElementAttribute("Valute")]
+  public ValCursValute[] Valute { get; set; } = null!;
+
+  /// <remarks/>
+  [System.Xml.Serialization.XmlAttributeAttribute()]
+  public string Date { get; set; } = null!;
+
+  /// <remarks/>
+  [System.Xml.Serialization.XmlAttributeAttribute()]
+  public string name { get; set; } = null!;
 }
 
 /// <remarks/>
@@ -70,79 +44,26 @@ public partial class ValCurs {
 [System.SerializableAttribute()]
 [System.Diagnostics.DebuggerStepThroughAttribute()]
 [System.ComponentModel.DesignerCategoryAttribute("code")]
-[System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true)]
-public partial class ValCursValute {
-    
-    private ushort numCodeField;
-    
-    private string charCodeField = null!;
-    
-    private uint nominalField;
-    
-    private string nameField = null!;
-    
-    private string valueField = null!;
-    
-    private string idField = null!;
-    
-    /// <remarks/>
-    public ushort NumCode {
-        get {
-            return this.numCodeField;
-        }
-        set {
-            this.numCodeField = value;
-        }
-    }
-    
-    /// <remarks/>
-    public string CharCode {
-        get {
-            return this.charCodeField;
-        }
-        set {
-            this.charCodeField = value;
-        }
-    }
-    
-    /// <remarks/>
-    public uint Nominal {
-        get {
-            return this.nominalField;
-        }
-        set {
-            this.nominalField = value;
-        }
-    }
-    
-    /// <remarks/>
-    public string Name {
-        get {
-            return this.nameField;
-        }
-        set {
-            this.nameField = value;
-        }
-    }
-    
-    /// <remarks/>
-    public string Value {
-        get {
-            return this.valueField;
-        }
-        set {
-            this.valueField = value;
-        }
-    }
-    
-    /// <remarks/>
-    [System.Xml.Serialization.XmlAttributeAttribute()]
-    public string ID {
-        get {
-            return this.idField;
-        }
-        set {
-            this.idField = value;
-        }
-    }
+[System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
+public partial class ValCursValute
+{
+
+  /// <remarks/>
+  public ushort NumCode { get; set; }
+
+  /// <remarks/>
+  public string CharCode { get; set; } = null!;
+
+  /// <remarks/>
+  public uint Nominal { get; set; }
+
+  /// <remarks/>
+  public string Name { get; set; } = null!;
+
+  /// <remarks/>
+  public string Value { get; set; } = null!;
+
+  /// <remarks/>
+  [System.Xml.Serialization.XmlAttributeAttribute()]
+  public string ID { get; set; } = null!;
 }
