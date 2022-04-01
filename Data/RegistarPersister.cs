@@ -4,13 +4,13 @@ using Microsoft.Extensions.Options;
 
 namespace Aweton.Labs.CurrencyRates.Cli.Data;
 
-public class RegistarPersister : IRegistarPersister
+internal class RegistarPersister : IRegistarPersister
 {
-  private readonly int m_RateTypeId;
+  private readonly int m_RateTypesId;
   private readonly MiceDbContext m_DbContext;
   public RegistarPersister(IOptions<MiceDbSettings> settings, MiceDbContext dbContext)
   {
-    m_RateTypeId = settings.Value.RateTypeId;
+    m_RateTypesId = settings.Value.RateTypesId;
     m_DbContext= dbContext;
   }
   public void AddCurrencyRate(CurrencyRate rate) => m_DbContext.CurrencyRates.Add(rate);
@@ -21,7 +21,7 @@ public class RegistarPersister : IRegistarPersister
       (e) => (
         e.ADate >= first
         && e.ADate <= last
-        && e.RateTypesID == m_RateTypeId
+        && e.RateTypesID == m_RateTypesId
         )
       ).ToListAsync();
   }

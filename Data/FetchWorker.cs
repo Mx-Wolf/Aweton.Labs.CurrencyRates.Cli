@@ -6,19 +6,26 @@ using Microsoft.Extensions.Options;
 namespace Aweton.Labs.CurrencyRates.Cli.Data;
 internal class FetchWorker : IFetchWorker
 {
+  public const string HttpClientName = "CbrHttpClient";
   private const string _cultureName = "ru-RU";
   private readonly string m_Url;
   private readonly int m_RateTypesId;
   private readonly int m_LookAhead;
-  private readonly HttpClient m_HttpClient;
+  private readonly IHttpClientFactory m_HttpClient;
   private readonly IMiceClock m_MiceClock;
   private readonly ICurrencyCodesWorker m_CodesWorker;
   private readonly IValCursSerializer m_ValCursSerializer;
 
-  public FetchWorker(IOptions<FetchWorkerSettings> settings, HttpClient httpClient, IMiceClock miceClock, ICurrencyCodesWorker codesWorker, IValCursSerializer valCursSerializer)
+  public FetchWorker(
+    IOptions<FetchWorkerSettings> settings, 
+    IOptions<MiceDbSettings> mice,
+    IHttpClientFactory httpClient, 
+    IMiceClock miceClock, 
+    ICurrencyCodesWorker codesWorker, 
+    IValCursSerializer valCursSerializer)
   {
     m_Url = settings.Value.Url;
-    m_RateTypesId = settings.Value.RateTypesId;
+    m_RateTypesId = mice.Value.RateTypesId;
     m_LookAhead = settings.Value.LookAhead;
     m_HttpClient = httpClient;
     m_MiceClock = miceClock;
@@ -48,7 +55,7 @@ internal class FetchWorker : IFetchWorker
 
   private async Task<Stream> GetHttpResponse(DateTime date)
   {
-    var response = await m_HttpClient.GetAsync(FormatUrl(date));
+    var response = await m_HttpClient.CreateClient(HttpClientName).GetAsync(FormatUrl(date));
     response.EnsureSuccessStatusCode();
     return await response.Content.ReadAsStreamAsync();
   }

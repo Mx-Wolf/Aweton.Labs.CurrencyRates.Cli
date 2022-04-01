@@ -6,10 +6,6 @@ namespace Aweton.Labs.CurrencyRates.Cli.Data
 {
   public partial class MiceDbContext : DbContext
   {
-    public MiceDbContext()
-    {      
-    }
-
     public MiceDbContext(DbContextOptions<MiceDbContext> options)
         : base(options)
     {
