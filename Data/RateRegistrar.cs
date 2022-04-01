@@ -1,15 +1,21 @@
 using Aweton.Labs.CurrencyRates.Cli.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace Aweton.Labs.CurrencyRates.Cli.Data;
 internal class RegistrarWorker : IRegistarWorker
 {
-  private readonly IRegistarPersister m_DbContext;
+  private readonly MiceDbContext m_DbContext;
   private readonly IEqualityComparer<CurrencyRate> m_Comparer;
+  private readonly IMiceClock m_MiceClock;
+  private readonly int m_RateTypesId;
 
-  public RegistrarWorker(IRegistarPersister dbContext, IEqualityComparer<CurrencyRate> comparer)
+  public RegistrarWorker(MiceDbContext dbContext, IEqualityComparer<CurrencyRate> comparer, IMiceClock miceClock, IOptions<MiceDbSettings> settings)
   {
     m_DbContext = dbContext;
     m_Comparer = comparer;
+    m_MiceClock = miceClock;
+    m_RateTypesId = settings.Value.RateTypesId;
   }
 
   public async Task<int> Register(IReadOnlyList<CurrencyRate> fetched)
@@ -18,22 +24,37 @@ internal class RegistrarWorker : IRegistarWorker
     {
       return 0;
     }
-
+    var max = fetched.Max((e) => e.ADate);
     fetched.Aggregate(
-      m_DbContext.AddCurrencyRate,
+      (a) => m_DbContext.CurrencyRates.Add(a),
       await CreateReducer(
         fetched.Min((e) => e.ADate),
-        fetched.Max((e) => e.ADate)
+        max
       )
     );
+
+    m_DbContext.awjCbrDailyLogs.Add(new awjCbrDailyLog
+    {
+      aDate = max,
+      awjCbrDailyLogID = 0,
+      HashBytes = new byte[0],
+      PostedAt = m_MiceClock.GetUtcDate(),
+      Rows = fetched.Count
+    });
 
     return await m_DbContext.SaveChangesAsync(CancellationToken.None);
   }
 
-  private async Task<Func<Action<CurrencyRate>, CurrencyRate, Action<CurrencyRate>>> CreateReducer(DateTime min, DateTime max)
+  private async Task<Func<Action<CurrencyRate>, CurrencyRate, Action<CurrencyRate>>> CreateReducer(DateTime first, DateTime last)
   {
     Func<CurrencyRate, CurrencyRate?> finder = CreateFinder(
-      await m_DbContext.GetCurrentState(min, max)
+      await m_DbContext.CurrencyRates.Where(
+      (e) => (
+        e.ADate >= first
+        && e.ADate <= last
+        && e.RateTypesID == m_RateTypesId
+        )
+      ).ToListAsync()
     );
     return (Action<CurrencyRate> addDelegate, CurrencyRate e) =>
     {
@@ -59,10 +80,13 @@ internal class RegistrarWorker : IRegistarWorker
     }
   }
 
-  private static void UpdateExistingRecord(CurrencyRate e, CurrencyRate found)
+  private void UpdateExistingRecord(CurrencyRate e, CurrencyRate found)
   {
-    found.Rate = e.Rate;
-    found.UserName = $"updated ${DateTime.Now.ToString("O")}";
+    if (e.Rate != found.Rate)
+    {
+      found.Rate = e.Rate;
+      found.UserName = $"updated {m_MiceClock.GetUtcDate().ToString("O")}";
+    }
   }
 
   private static CurrencyRate CreateRecordToInsert(CurrencyRate e) => e;

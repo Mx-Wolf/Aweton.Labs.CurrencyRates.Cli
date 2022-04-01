@@ -1,6 +1,7 @@
 using System.Globalization;
 using Aweton.Labs.CurrencyRates.Cli.CbrXml;
 using Aweton.Labs.CurrencyRates.Cli.Models;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Aweton.Labs.CurrencyRates.Cli.Data;
@@ -15,14 +16,16 @@ internal class FetchWorker : IFetchWorker
   private readonly IMiceClock m_MiceClock;
   private readonly ICurrencyCodesWorker m_CodesWorker;
   private readonly IValCursSerializer m_ValCursSerializer;
+  private readonly ILogger<FetchWorker> m_Logger;
 
   public FetchWorker(
-    IOptions<FetchWorkerSettings> settings, 
+    IOptions<FetchWorkerSettings> settings,
     IOptions<MiceDbSettings> mice,
-    IHttpClientFactory httpClient, 
-    IMiceClock miceClock, 
-    ICurrencyCodesWorker codesWorker, 
-    IValCursSerializer valCursSerializer)
+    IHttpClientFactory httpClient,
+    IMiceClock miceClock,
+    ICurrencyCodesWorker codesWorker,
+    IValCursSerializer valCursSerializer, 
+    ILogger<FetchWorker> logger)
   {
     m_Url = settings.Value.Url;
     m_RateTypesId = mice.Value.RateTypesId;
@@ -31,10 +34,12 @@ internal class FetchWorker : IFetchWorker
     m_MiceClock = miceClock;
     m_CodesWorker = codesWorker;
     m_ValCursSerializer = valCursSerializer;
+    m_Logger = logger;
   }
 
   public async Task<IReadOnlyList<CurrencyRate>> Load(DateTime after)
   {
+    m_Logger.LogInformation($"stargin after ${after.ToString("O")}");
     return await Dates(after).Aggregate(Task.FromResult(new List<CurrencyRate>()),CollectRatesFor) ;   
   }
 
@@ -50,7 +55,7 @@ internal class FetchWorker : IFetchWorker
   {
     var curs = m_ValCursSerializer.Deserialize(stream);
     accumulator.AddRange(Transform(curs, codes));
-    return accumulator;
+    return accumulator.DistinctBy((e)=>new{e.ADate,e.CurrencyTypesID,e.RateTypesID}).ToList();
   }
 
   private async Task<Stream> GetHttpResponse(DateTime date)
