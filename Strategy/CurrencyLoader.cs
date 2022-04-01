@@ -23,17 +23,17 @@ internal class CurrencyLoader
 
   private Task Register(IReadOnlyList<CurrencyRate> currencyRates)
   {
-    throw new NotImplementedException();
+    return WithScope( (IRegistarWorker worker)=>worker.Register(currencyRates));
   }
 
-  private Task<IReadOnlyList<CurrencyRate>> Fetch(DateTime p)
+  private async Task<IReadOnlyList<CurrencyRate>> Fetch(DateTime after)
   {
-    throw new NotImplementedException();
+    return await WithScope(async (IFetchWorker worker) => await worker.Load(after));
   }
 
   private async Task<DateTime> Initialize() => await GetLastKnownFetchDate();
 
-  
+
   private async Task<DateTime> GetLastKnownFetchDate()
   {
     return await WithScope(

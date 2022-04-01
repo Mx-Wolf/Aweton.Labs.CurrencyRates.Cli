@@ -7,3 +7,8 @@ public interface IRegistarPersister{
   void AddCurrencyRate(CurrencyRate rate);
   Task<IReadOnlyList<CurrencyRate>> GetCurrentState(DateTime first, DateTime last);
 }
+
+public interface IRegistarWorker
+{
+  Task<int> Register(IReadOnlyList<CurrencyRate> fetched);
+}
