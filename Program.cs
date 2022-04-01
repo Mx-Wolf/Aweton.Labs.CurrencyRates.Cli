@@ -1,4 +1,5 @@
-﻿using Aweton.Labs.CurrencyRates.Cli.Data;
+﻿using System.Text;
+using Aweton.Labs.CurrencyRates.Cli.Data;
 using Aweton.Labs.CurrencyRates.Cli.Models;
 using Aweton.Labs.CurrencyRates.Cli.Strategy;
 using Microsoft.EntityFrameworkCore;
