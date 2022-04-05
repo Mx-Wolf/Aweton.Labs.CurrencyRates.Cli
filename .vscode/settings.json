@@ -1,0 +1,36 @@
+{
+  "sqltools.connections": [
+    {
+      "mssqlOptions": {
+        "appName": "SQLTools",
+        "useUTC": true,
+        "encrypt": true
+      },
+      "previewLimit": 50,
+      "server": "proxima-wf.database.windows.net",
+      "port": 1433,
+      "askForPassword": true,
+      "driver": "MSSQL",
+      "name": "PTS",
+      "group": "Work",
+      "database": "PTS",
+      "username": "Wolf"
+    },
+    {
+      "mssqlOptions": {
+        "appName": "SQLTools",
+        "useUTC": true,
+        "encrypt": true
+      },
+      "previewLimit": 50,
+      "server": "pts-svr.database.windows.net",
+      "port": 1433,
+      "askForPassword": true,
+      "driver": "MSSQL",
+      "name": "al:pts",
+      "group": "Work",
+      "database": "pts",
+      "username": "wolf"
+    }
+  ]
+}
