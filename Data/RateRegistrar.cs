@@ -41,8 +41,15 @@ internal class RegistrarWorker : IRegistarWorker
       PostedAt = m_MiceClock.GetUtcDate(),
       Rows = fetched.Count
     });
+    int result = await m_DbContext.SaveChangesAsync(CancellationToken.None);
+    await UpdateActualRateValues();
+    return result;
+    
+  }
 
-    return await m_DbContext.SaveChangesAsync(CancellationToken.None);
+  private async Task UpdateActualRateValues()
+  {
+    await m_DbContext.Database.ExecuteSqlRawAsync("sys_UpdateCurrencyRatesNow");
   }
 
   private async Task<Func<Action<CurrencyRate>, CurrencyRate, Action<CurrencyRate>>> CreateReducer(DateTime first, DateTime last)
