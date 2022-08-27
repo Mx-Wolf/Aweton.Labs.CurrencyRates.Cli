@@ -4,20 +4,28 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace Aweton.Labs.CurrencyRates.Cli.Strategy;
-internal class CurrencyLoader
+internal class CurrencyLoader: ICurrencyLoader
 {
   private readonly IServiceProvider m_Services;
   private readonly DateTime m_DefaultFirstDate;
+  private readonly TimeSpan? m_RepeatLoopInterval;
 
   public CurrencyLoader(IServiceProvider services, IOptions<StarterSettings> settings)
   {
     m_Services = services;
     m_DefaultFirstDate = settings.Value.DefaultFirstDate;
+    m_RepeatLoopInterval = settings.Value.RepeatLoopInterval;
   }
 
   public async Task Run()
   {
-    await Register(await Fetch(await Initialize()));
+    while(true){
+      await Register(await Fetch(await Initialize()));
+      if(m_RepeatLoopInterval == null){
+        return;
+      }
+      await Task.Delay(m_RepeatLoopInterval.Value);
+    }
 
   }
 

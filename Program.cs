@@ -13,16 +13,18 @@ using Microsoft.Extensions.Options;
 await Host.CreateDefaultBuilder(args)
 .ConfigureAppConfiguration(ConfigureApp)
 .ConfigureServices(ConfigureServices)
-.Build().Services.GetRequiredService<CurrencyLoader>().Run();
+.Build().Services.GetRequiredService<ICurrencyLoader>().Run();
 
-void ConfigureApp(HostBuilderContext context, IConfigurationBuilder builder){
+void ConfigureApp(HostBuilderContext context, IConfigurationBuilder builder)
+{
   builder.AddCommandLine(args);
 }
 
 void ConfigureServices(HostBuilderContext context, IServiceCollection services)
 {
-  
+
   services.AddXorStrings(context.Configuration);
+
   services.Configure<StarterSettings>(context.Configuration.GetSection("Starter"));
   services.Configure<MiceDbSettings>(context.Configuration.GetSection("MiceDb"));
   services.Configure<FetchWorkerSettings>(context.Configuration.GetSection("Fetch"));
@@ -43,7 +45,7 @@ void ConfigureServices(HostBuilderContext context, IServiceCollection services)
   });
 
   services
-  .AddTransient<CurrencyLoader>()
+  .AddTransient<ICurrencyLoader, CurrencyLoader>()
   .AddTransient<IRegistarWorker, RegistrarWorker>()
   .AddTransient<IRegistarPersister, RegistarPersister>()
   .AddTransient<IFetchWorker, FetchWorker>()
